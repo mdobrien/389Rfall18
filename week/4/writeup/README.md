@@ -1,8 +1,8 @@
 Writeup 3 - Pentesting I
 ======
 
-Name: *PUT YOUR NAME HERE*
-Section: *PUT YOUR SECTION HERE*
+Name: Mike O'Brien
+Section: 0101
 
 I pledge on my honor that I have not given or received any unauthorized assistance on this assignment or examination.
 
