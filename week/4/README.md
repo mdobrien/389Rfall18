@@ -19,14 +19,33 @@ However, there are rumors that Freds's new service is vulnerable to a Command In
 
 For full credit, write up (step-by-step) how you got the flag and what Fred should do to protect from this vulnerability.
 
-You will earn full credit for answering these questions:
+---- Response ----
+Flag path: /home/flag.txt
+Flag: p1ng_as_a_$erv1c3
+Script path: /opt/container_startup.sh
+Command Injection: "; cat /home/flag/txt"
+---- Response ----
 
-* The right flag
-* Showing what input you used to obtain the flag.
+cho "Network Administration Panel -- Uptime Monitor "
+echo -n "Enter IP address: " read input >&2 echo "[$(date)] INPUT: $input" cmd="ping -w 5 -c 2 $input" output=$(eval $cmd) echo $output
+
 * Describing your thought process.
+When it said we are using a mixture of input from a using and ping my first thought was that it is likely a command injection vulnerability. I typed in an IP address followed by a semi-colon and the ls command to test my idea. It worked, so my next thought was i need to find the target data. I ran the command inject and displayed the contents of the /home directory. My though process was to see what users are on the machine to give me more information to use. Also users are generally the biggest threats to a system. After I found the flag, i began looking for the script. Since the script can be ran at any point, it thought that it must be running. I ran another command injection "; ps -ef" to get a list of all the proccesses running on the server. This command returned a proccess running at /opt/container_startup.sh. This was the only proccess ruinng, so i thought that it must be the Uptime Script. I excuted another command inject to print the contents of /opt/container_startup.sh. My thought was correct because it returned the code for my script of interest.
+
+
 * Any suggested precautions Fred could implement to prevent this vulnerability (hint: can you find the script that Fred uses to check the uptime?)
+Fred committed a security cardinal sin by directly passing using input as the parameter for a system command. Fred has two options to santize the data by escaping known any input that does not fit an IP address or to reject input if it contains malformed data. If I were fred, I would implement the regular expression to match the input against. If the input does not pass, then reject the input and don't execute the command.
 
 ### Part 2
+
+Working through this script to exploit the command injection vulnerabilty had three parts.
+
+The first task was scripting the command injection. I had to establish a socket connection to send and receive data from the cornerstoneairlines.co.
+
+The next task was building the interactive shell. I built the structure to handle the given shell commands (shell, help, pull, and quit). I implemented help and quit. The next challenge was to implement the pull functionality. This incorporated parsing the input for file paths, and then reading and writing to and from those locations.
+
+The last part was to develop the mini command injection shell. The most difficult part of this retaining the cwd after a command is excuted. Due the one time connection interaction with the server. The current working directory had to be stored locally, and then appending to file paths as need for the ls, cd, and cat commands.
+
 
 Using the provided stub code, implement an interactive shell that leverages the above vulnerability.
 
@@ -44,24 +63,3 @@ Note: If you choose to write your own program in another language, please includ
 Note: If you are stuck on this part of the assignment, please let us know. The facilitator staff is open to releasing hints, though we reserve the right to deny releasing specific hints if we deem it appropriate.
 
 Note: Here's a [screenshot](shellimg.png) of what we roughly expect. I'll post a simple "public test" for which you will be graded on. Kindly bear with us here, we're trying something new :)
-
-
-### Format
-
-Both parts should be written in the same blog post, clearly separated. Full, grammatical sentences
-should be used. Part 1 should be at least 300 words, and part 2 should be at least 200. There
-is no penalty for going over these numbers, but there *is* a penalty for padding your work to meet
-the minimums.
-
-### Scoring
-
-Part 1 is worth 45 points, and part 2 is worth 55.
-
-### Tips
-
-Reference the slides from lecture 2 on how to make a good ethical argument.
-
-Observe that part 2 is the same as the second part of part 1: doing it first might stimulate your
-thoughts.
-
-Good luck!
